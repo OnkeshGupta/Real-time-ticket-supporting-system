@@ -1,26 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const {
-  getTickets,
-  getTicketById,
-  createTicket,
-  updateTicket,
-  addComment,
-  getStats,
-} = require('../controllers/ticketController');
-const { authenticate, authorize } = require('../middleware/auth');
-const {
-  validateCreateTicket,
-  validateUpdateTicket,
-  validateComment,
-  validateTicketQuery,
-} = require('../middleware/validation');
+const { getTickets, getTicketById, createTicket, updateTicket, addComment, getStats } = require('../controllers/ticketController');
+const { authenticate } = require('../middleware/auth');
+const { validateCreateTicket, validateUpdateTicket, validateComment, validateTicketQuery } = require('../middleware/validation');
 
-// Inject socket.io into req
-const injectSocket = (io) => (req, res, next) => {
-  req.io = io;
-  next();
-};
+const injectSocket = (io) => (req, res, next) => { req.io = io; next(); };
 
 module.exports = (io) => {
   const socketMiddleware = injectSocket(io);

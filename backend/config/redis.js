@@ -11,7 +11,7 @@ const createRedisClient = () => {
     retryStrategy: (times) => {
       if (times > 3) {
         logger.warn('Redis connection failed after 3 retries. Running without cache.');
-        return null; // Stop retrying
+        return null;
       }
       return Math.min(times * 200, 2000);
     },
@@ -22,14 +22,11 @@ const createRedisClient = () => {
   client.on('connect', () => logger.info('Redis connected'));
   client.on('error', (err) => logger.warn(`Redis error (non-fatal): ${err.message}`));
   client.on('close', () => logger.warn('Redis connection closed'));
-
   return client;
 };
 
 const getRedisClient = () => {
-  if (!redisClient) {
-    redisClient = createRedisClient();
-  }
+  if (!redisClient) redisClient = createRedisClient();
   return redisClient;
 };
 
@@ -42,7 +39,6 @@ const connectRedis = async () => {
   }
 };
 
-// Cache helpers
 const cacheGet = async (key) => {
   try {
     const client = getRedisClient();
@@ -85,9 +81,7 @@ const cacheDelPattern = async (pattern) => {
     const client = getRedisClient();
     if (client.status !== 'ready') return false;
     const keys = await client.keys(pattern);
-    if (keys.length > 0) {
-      await client.del(...keys);
-    }
+    if (keys.length > 0) await client.del(...keys);
     return true;
   } catch (error) {
     logger.warn(`Cache DEL pattern error for ${pattern}: ${error.message}`);
