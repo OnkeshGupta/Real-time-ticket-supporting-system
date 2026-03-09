@@ -6,19 +6,15 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Request interceptor - attach token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response interceptor - handle auth errors
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
@@ -27,16 +23,11 @@ api.interceptors.response.use(
       localStorage.removeItem('user');
       window.dispatchEvent(new Event('auth:logout'));
     }
-    const message =
-      error.response?.data?.message ||
-      error.response?.data?.errors?.[0]?.message ||
-      error.message ||
-      'Something went wrong';
+    const message = error.response?.data?.message || error.response?.data?.errors?.[0]?.message || error.message || 'Something went wrong';
     return Promise.reject(new Error(message));
   }
 );
 
-// Auth APIs
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
@@ -44,7 +35,6 @@ export const authAPI = {
   getAgents: () => api.get('/auth/agents'),
 };
 
-// Ticket APIs
 export const ticketAPI = {
   getAll: (params) => api.get('/tickets', { params }),
   getById: (id) => api.get(`/tickets/${id}`),

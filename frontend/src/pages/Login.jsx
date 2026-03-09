@@ -27,7 +27,6 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-surface-900 via-brand-950 to-surface-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 bg-brand-500 rounded-2xl mb-4 shadow-lg">
             <span className="text-white text-2xl font-bold font-display">S</span>
@@ -56,7 +55,6 @@ const Login = () => {
                 autoFocus
               />
             </div>
-
             <div>
               <label className="label">Password</label>
               <input
@@ -68,7 +66,6 @@ const Login = () => {
                 required
               />
             </div>
-
             <button type="submit" disabled={loading} className="btn-primary btn-lg w-full">
               {loading ? <Spinner size="sm" /> : 'Sign In'}
             </button>
@@ -76,12 +73,9 @@ const Login = () => {
 
           <p className="text-center text-sm text-surface-500 mt-6">
             Don't have an account?{' '}
-            <Link to="/register" className="text-brand-600 hover:text-brand-700 font-medium">
-              Create one
-            </Link>
+            <Link to="/register" className="text-brand-600 hover:text-brand-700 font-medium">Create one</Link>
           </p>
 
-          {/* Demo credentials */}
           <div className="mt-6 pt-6 border-t border-surface-100">
             <p className="text-xs text-center text-surface-400 mb-3 font-medium uppercase tracking-wide">Demo Accounts</p>
             <div className="grid grid-cols-2 gap-2">

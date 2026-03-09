@@ -55,7 +55,6 @@ const Register = () => {
                 autoFocus
               />
             </div>
-
             <div>
               <label className="label">Email</label>
               <input
@@ -67,7 +66,6 @@ const Register = () => {
                 required
               />
             </div>
-
             <div>
               <label className="label">Password</label>
               <input
@@ -80,7 +78,6 @@ const Register = () => {
                 minLength={6}
               />
             </div>
-
             <div>
               <label className="label">I am a...</label>
               <div className="grid grid-cols-2 gap-3">
@@ -91,9 +88,7 @@ const Register = () => {
                   <label
                     key={option.value}
                     className={`cursor-pointer border-2 rounded-xl p-3 transition-all
-                      ${form.role === option.value
-                        ? 'border-brand-500 bg-brand-50'
-                        : 'border-surface-200 hover:border-surface-300'}`}
+                      ${form.role === option.value ? 'border-brand-500 bg-brand-50' : 'border-surface-200 hover:border-surface-300'}`}
                   >
                     <input
                       type="radio"
@@ -108,7 +103,6 @@ const Register = () => {
                 ))}
               </div>
             </div>
-
             <button type="submit" disabled={loading} className="btn-primary btn-lg w-full">
               {loading ? <Spinner size="sm" /> : 'Create Account'}
             </button>
@@ -116,9 +110,7 @@ const Register = () => {
 
           <p className="text-center text-sm text-surface-500 mt-6">
             Already have an account?{' '}
-            <Link to="/login" className="text-brand-600 hover:text-brand-700 font-medium">
-              Sign in
-            </Link>
+            <Link to="/login" className="text-brand-600 hover:text-brand-700 font-medium">Sign in</Link>
           </p>
         </div>
       </div>

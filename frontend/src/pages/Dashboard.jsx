@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
 import { ticketAPI } from '../services/api';
 import { StatusBadge, PriorityBadge, Spinner, EmptyState } from '../components/common';
-import { STATUS_CONFIG, timeAgo } from '../utils/helpers';
+import { timeAgo } from '../utils/helpers';
 
 const StatCard = ({ label, value, icon, color, onClick }) => (
   <div
@@ -39,15 +39,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchStats();
-
-    // Refresh stats on ticket events
     const removeCreated = on('ticket:created', fetchStats);
     const removeUpdated = on('ticket:updated', fetchStats);
-
-    return () => {
-      removeCreated?.();
-      removeUpdated?.();
-    };
+    return () => { removeCreated?.(); removeUpdated?.(); };
   }, [on]);
 
   if (loading) return (
@@ -68,7 +62,6 @@ const Dashboard = () => {
 
   return (
     <div className="p-8 space-y-8">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-surface-900 font-display">Dashboard</h1>
@@ -86,7 +79,6 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card) => (
           <StatCard
@@ -97,7 +89,6 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Priority breakdown (agents only) */}
       {isAgent && stats?.byPriority && Object.keys(stats.byPriority).length > 0 && (
         <div className="card p-6">
           <h2 className="text-sm font-semibold text-surface-700 uppercase tracking-wide mb-4">Open Tickets by Priority</h2>
@@ -112,19 +103,15 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Recent tickets */}
       <div className="card">
         <div className="p-6 border-b border-surface-100 flex items-center justify-between">
           <h2 className="font-semibold text-surface-800">Recent Activity</h2>
-          <button
-            onClick={() => navigate('/tickets')}
-            className="text-sm text-brand-600 hover:text-brand-700 font-medium"
-          >
+          <button onClick={() => navigate('/tickets')} className="text-sm text-brand-600 hover:text-brand-700 font-medium">
             View all →
           </button>
         </div>
         <div className="divide-y divide-surface-100">
-          {stats?.recentTickets?.length === 0 ? (
+          {!stats?.recentTickets?.length ? (
             <EmptyState
               icon="🎫"
               title="No tickets yet"
@@ -136,7 +123,7 @@ const Dashboard = () => {
               )}
             />
           ) : (
-            stats?.recentTickets?.map((ticket) => (
+            stats.recentTickets.map((ticket) => (
               <div
                 key={ticket._id}
                 onClick={() => navigate(`/tickets/${ticket._id}`)}

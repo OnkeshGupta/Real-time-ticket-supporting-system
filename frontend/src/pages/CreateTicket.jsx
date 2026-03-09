@@ -6,13 +6,7 @@ import { CATEGORIES } from '../utils/helpers';
 import { Spinner } from '../components/common';
 
 const CreateTicket = () => {
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    priority: 'medium',
-    category: 'general',
-    tags: '',
-  });
+  const [form, setForm] = useState({ title: '', description: '', priority: 'medium', category: 'general', tags: '' });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -29,12 +23,11 @@ const CreateTicket = () => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
-
     setLoading(true);
     try {
       const data = await ticketAPI.create({
         ...form,
-        tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+        tags: form.tags ? form.tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
       });
       toast.success(`Ticket ${data.ticket.ticketNumber} created!`);
       navigate(`/tickets/${data.ticket._id}`);
@@ -62,7 +55,6 @@ const CreateTicket = () => {
 
       <div className="card p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title */}
           <div>
             <label className="label">Subject <span className="text-red-500">*</span></label>
             <input
@@ -76,13 +68,12 @@ const CreateTicket = () => {
             <p className="text-xs text-surface-400 mt-1">{form.title.length}/200</p>
           </div>
 
-          {/* Category & Priority */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="label">Category</label>
               <select {...field('category')} className="input">
                 {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>{c.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>
+                  <option key={c} value={c}>{c.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}</option>
                 ))}
               </select>
             </div>
@@ -96,7 +87,6 @@ const CreateTicket = () => {
             </div>
           </div>
 
-          {/* Description */}
           <div>
             <label className="label">Description <span className="text-red-500">*</span></label>
             <textarea
@@ -110,7 +100,6 @@ const CreateTicket = () => {
             <p className="text-xs text-surface-400 mt-1">{form.description.length}/5000</p>
           </div>
 
-          {/* Tags */}
           <div>
             <label className="label">Tags <span className="text-surface-400 font-normal">(optional, comma-separated)</span></label>
             <input
@@ -121,7 +110,6 @@ const CreateTicket = () => {
             />
           </div>
 
-          {/* Priority info */}
           {form.priority === 'urgent' && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-4">
               <p className="text-sm text-red-700">
@@ -131,9 +119,7 @@ const CreateTicket = () => {
           )}
 
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={() => navigate(-1)} className="btn-secondary flex-1">
-              Cancel
-            </button>
+            <button type="button" onClick={() => navigate(-1)} className="btn-secondary flex-1">Cancel</button>
             <button type="submit" disabled={loading} className="btn-primary flex-1">
               {loading ? <Spinner size="sm" /> : 'Submit Ticket'}
             </button>

@@ -1,14 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSocket } from '../../contexts/SocketContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { Avatar } from '../common';
+import { Avatar, Spinner } from '../common';
 import { timeAgo, formatDateTime } from '../../utils/helpers';
 import { ticketAPI } from '../../services/api';
-import { Spinner } from '../common';
 
 const CommentBubble = ({ comment, currentUserId }) => {
   const isOwn = comment.author?._id === currentUserId;
-
   return (
     <div className={`flex gap-3 ${isOwn ? 'flex-row-reverse' : ''} animate-fade`}>
       <Avatar name={comment.author?.name} size="sm" className="flex-shrink-0 mt-1" />
@@ -42,11 +40,11 @@ const TypingIndicator = ({ users }) => {
   return (
     <div className="flex items-center gap-2 text-xs text-surface-400 animate-fade">
       <div className="flex gap-1">
-        {[0, 1, 2].map(i => (
+        {[0, 1, 2].map((i) => (
           <span key={i} className="w-1.5 h-1.5 bg-surface-400 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
         ))}
       </div>
-      <span>{users.map(u => u.name).join(', ')} {users.length === 1 ? 'is' : 'are'} typing...</span>
+      <span>{users.map((u) => u.name).join(', ')} {users.length === 1 ? 'is' : 'are'} typing...</span>
     </div>
   );
 };
@@ -63,27 +61,25 @@ const CommentThread = ({ ticketId, initialComments = [], isAgent }) => {
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  useEffect(() => {
-    setComments(initialComments);
-  }, [initialComments]);
+  useEffect(() => { setComments(initialComments); }, [initialComments]);
 
   useEffect(() => {
     joinTicketRoom(ticketId);
 
     const removeComment = on('comment:new', (data) => {
       if (data.ticketId === ticketId) {
-        setComments(prev => {
-          if (prev.some(c => c._id === data.comment._id)) return prev;
+        setComments((prev) => {
+          if (prev.some((c) => c._id === data.comment._id)) return prev;
           return [...prev, data.comment];
         });
-        setTypingUsers(prev => prev.filter(u => u.userId !== data.comment.author._id));
+        setTypingUsers((prev) => prev.filter((u) => u.userId !== data.comment.author._id));
       }
     });
 
     const removeTyping = on('comment:user_typing', (data) => {
       if (data.ticketId === ticketId && data.userId !== user?._id) {
-        setTypingUsers(prev => {
-          if (prev.some(u => u.userId === data.userId)) return prev;
+        setTypingUsers((prev) => {
+          if (prev.some((u) => u.userId === data.userId)) return prev;
           return [...prev, { userId: data.userId, name: data.userName }];
         });
       }
@@ -91,7 +87,7 @@ const CommentThread = ({ ticketId, initialComments = [], isAgent }) => {
 
     const removeStopTyping = on('comment:user_stop_typing', (data) => {
       if (data.ticketId === ticketId) {
-        setTypingUsers(prev => prev.filter(u => u.userId !== data.userId));
+        setTypingUsers((prev) => prev.filter((u) => u.userId !== data.userId));
       }
     });
 
@@ -118,11 +114,9 @@ const CommentThread = ({ ticketId, initialComments = [], isAgent }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) return;
-
     setSubmitting(true);
     setError('');
     emit('comment:stop_typing', { ticketId });
-
     try {
       await ticketAPI.addComment(ticketId, { content: content.trim(), isInternal });
       setContent('');
@@ -144,7 +138,7 @@ const CommentThread = ({ ticketId, initialComments = [], isAgent }) => {
           </div>
         ) : (
           comments
-            .filter(c => isAgent || !c.isInternal)
+            .filter((c) => isAgent || !c.isInternal)
             .map((comment) => (
               <CommentBubble key={comment._id} comment={comment} currentUserId={user?._id} />
             ))
@@ -153,7 +147,7 @@ const CommentThread = ({ ticketId, initialComments = [], isAgent }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="border-t border-surface-100 p-4 bg-white">
+      <div className="border-t border-surface-100 p-4 bg-white flex-shrink-0">
         {error && <p className="text-xs text-red-500 mb-2">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-2">
           {isAgent && (
@@ -176,11 +170,7 @@ const CommentThread = ({ ticketId, initialComments = [], isAgent }) => {
               rows={2}
               className={`input flex-1 resize-none text-sm ${isInternal ? 'border-amber-300 focus:ring-amber-400' : ''}`}
             />
-            <button
-              type="submit"
-              disabled={submitting || !content.trim()}
-              className="btn-primary px-4 self-end"
-            >
+            <button type="submit" disabled={submitting || !content.trim()} className="btn-primary px-4 self-end">
               {submitting ? <Spinner size="sm" /> : (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

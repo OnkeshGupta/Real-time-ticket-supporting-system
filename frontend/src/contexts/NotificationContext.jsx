@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
+import { createContext, useContext, useReducer, useCallback, useMemo, useEffect } from 'react';
 import { useSocket } from './SocketContext';
 import { useAuth } from './AuthContext';
 
@@ -6,14 +6,10 @@ const NotificationContext = createContext(null);
 
 const notificationReducer = (state, action) => {
   switch (action.type) {
-    case 'ADD':
-      return [action.payload, ...state].slice(0, 50); // Keep max 50
-    case 'REMOVE':
-      return state.filter((n) => n.id !== action.payload);
-    case 'CLEAR_ALL':
-      return [];
-    default:
-      return state;
+    case 'ADD': return [action.payload, ...state].slice(0, 50);
+    case 'REMOVE': return state.filter((n) => n.id !== action.payload);
+    case 'CLEAR_ALL': return [];
+    default: return state;
   }
 };
 
@@ -26,70 +22,36 @@ export const NotificationProvider = ({ children }) => {
 
   const addNotification = useCallback((notif) => {
     const id = `notif_${Date.now()}_${++notifCounter}`;
-    dispatch({ type: 'ADD', payload: { id, timestamp: new Date(), ...notif } });
-
+    const notification = { id, timestamp: new Date(), ...notif };
+    dispatch({ type: 'ADD', payload: notification });
     if (notif.autoClose !== false) {
       setTimeout(() => dispatch({ type: 'REMOVE', payload: id }), notif.duration || 5000);
     }
-
     return id;
   }, []);
 
-  const removeNotification = useCallback((id) => {
-    dispatch({ type: 'REMOVE', payload: id });
-  }, []);
+  const removeNotification = useCallback((id) => { dispatch({ type: 'REMOVE', payload: id }); }, []);
 
-  const toast = useCallback(
-    {
-      success: (msg, opts) => addNotification({ type: 'success', message: msg, ...opts }),
-      error: (msg, opts) => addNotification({ type: 'error', message: msg, duration: 7000, ...opts }),
-      info: (msg, opts) => addNotification({ type: 'info', message: msg, ...opts }),
-      warning: (msg, opts) => addNotification({ type: 'warning', message: msg, ...opts }),
-    },
-    [addNotification]
-  );
+  const toast = useMemo(() => ({
+    success: (msg, opts) => addNotification({ type: 'success', message: msg, ...opts }),
+    error: (msg, opts) => addNotification({ type: 'error', message: msg, duration: 7000, ...opts }),
+    info: (msg, opts) => addNotification({ type: 'info', message: msg, ...opts }),
+    warning: (msg, opts) => addNotification({ type: 'warning', message: msg, ...opts }),
+  }), [addNotification]);
 
-  // Real-time socket notifications
   useEffect(() => {
     const removeNewTicket = on('ticket:new_notification', (data) => {
-      if (isAgent) {
-        addNotification({
-          type: 'info',
-          title: 'New Ticket',
-          message: data.message,
-          link: `/tickets/${data.ticket._id}`,
-          duration: 8000,
-        });
-      }
+      if (isAgent) addNotification({ type: 'info', title: 'New Ticket', message: data.message, link: `/tickets/${data.ticket._id}`, duration: 8000 });
     });
-
     const removeStatusChange = on('ticket:status_changed', (data) => {
-      addNotification({
-        type: 'info',
-        title: 'Ticket Updated',
-        message: `#${data.ticketNumber} status → ${data.newStatus.replace(/_/g, ' ')}`,
-        link: `/tickets/${data.ticketId}`,
-        duration: 5000,
-      });
+      addNotification({ type: 'info', title: 'Ticket Updated', message: `#${data.ticketNumber} status → ${data.newStatus.replace(/_/g, ' ')}`, link: `/tickets/${data.ticketId}`, duration: 5000 });
     });
-
     const removeNewComment = on('comment:new', (data) => {
-      if (data.comment.author._id !== user?._id) {
-        addNotification({
-          type: 'info',
-          title: 'New Comment',
-          message: `${data.comment.author.name} commented on a ticket`,
-          link: `/tickets/${data.ticketId}`,
-          duration: 5000,
-        });
+      if (data.comment?.author?._id !== user?._id) {
+        addNotification({ type: 'info', title: 'New Comment', message: `${data.comment?.author?.name} commented on a ticket`, link: `/tickets/${data.ticketId}`, duration: 5000 });
       }
     });
-
-    return () => {
-      removeNewTicket?.();
-      removeStatusChange?.();
-      removeNewComment?.();
-    };
+    return () => { removeNewTicket?.(); removeStatusChange?.(); removeNewComment?.(); };
   }, [on, isAgent, user, addNotification]);
 
   return (

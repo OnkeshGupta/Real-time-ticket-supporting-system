@@ -70,7 +70,6 @@ const Toast = ({ notification }) => {
 
 const NotificationToast = () => {
   const { notifications } = useNotifications();
-
   return (
     <div className="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
       {notifications.map((n) => (

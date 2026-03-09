@@ -8,15 +8,10 @@ export const SocketProvider = ({ children }) => {
   const { token, user } = useAuth();
   const socketRef = useRef(null);
   const [connected, setConnected] = useState(false);
-  const listenersRef = useRef(new Map());
 
   useEffect(() => {
     if (!token || !user) {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-        setConnected(false);
-      }
+      if (socketRef.current) { socketRef.current.disconnect(); socketRef.current = null; setConnected(false); }
       return;
     }
 
@@ -30,28 +25,13 @@ export const SocketProvider = ({ children }) => {
       timeout: 10000,
     });
 
-    socket.on('connect', () => {
-      setConnected(true);
-      console.log('Socket connected:', socket.id);
-    });
-
-    socket.on('disconnect', (reason) => {
-      setConnected(false);
-      console.log('Socket disconnected:', reason);
-    });
-
-    socket.on('connect_error', (err) => {
-      console.warn('Socket connection error:', err.message);
-      setConnected(false);
-    });
+    socket.on('connect', () => { setConnected(true); });
+    socket.on('disconnect', () => { setConnected(false); });
+    socket.on('connect_error', () => { setConnected(false); });
 
     socketRef.current = socket;
 
-    return () => {
-      socket.disconnect();
-      socketRef.current = null;
-      setConnected(false);
-    };
+    return () => { socket.disconnect(); socketRef.current = null; setConnected(false); };
   }, [token, user]);
 
   const on = useCallback((event, handler) => {
@@ -60,21 +40,10 @@ export const SocketProvider = ({ children }) => {
     return () => socketRef.current?.off(event, handler);
   }, []);
 
-  const off = useCallback((event, handler) => {
-    socketRef.current?.off(event, handler);
-  }, []);
-
-  const emit = useCallback((event, data) => {
-    socketRef.current?.emit(event, data);
-  }, []);
-
-  const joinTicketRoom = useCallback((ticketId) => {
-    socketRef.current?.emit('ticket:join', ticketId);
-  }, []);
-
-  const leaveTicketRoom = useCallback((ticketId) => {
-    socketRef.current?.emit('ticket:leave', ticketId);
-  }, []);
+  const off = useCallback((event, handler) => { socketRef.current?.off(event, handler); }, []);
+  const emit = useCallback((event, data) => { socketRef.current?.emit(event, data); }, []);
+  const joinTicketRoom = useCallback((ticketId) => { socketRef.current?.emit('ticket:join', ticketId); }, []);
+  const leaveTicketRoom = useCallback((ticketId) => { socketRef.current?.emit('ticket:leave', ticketId); }, []);
 
   return (
     <SocketContext.Provider value={{ connected, on, off, emit, joinTicketRoom, leaveTicketRoom, socket: socketRef }}>

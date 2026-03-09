@@ -20,7 +20,6 @@ export const PRIORITY_CONFIG = {
 };
 
 export const CATEGORIES = ['billing', 'technical', 'general', 'feature_request', 'bug_report', 'other'];
-
 export const STATUSES = Object.keys(STATUS_CONFIG);
 
 export const ACTIVITY_ICONS = {
