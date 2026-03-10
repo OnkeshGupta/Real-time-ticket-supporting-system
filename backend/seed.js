@@ -1,4 +1,6 @@
 require('dotenv').config();
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const Ticket = require('./models/Ticket');
@@ -12,12 +14,33 @@ const seed = async () => {
   await Promise.all([User.deleteMany(), Ticket.deleteMany(), Comment.deleteMany()]);
   logger.info('Cleared existing data');
 
-  const [customer1, customer2, agent1, agent2] = await User.create([
-    { name: 'Alice Johnson', email: 'customer@demo.com', password: 'demo123', role: 'customer' },
-    { name: 'Bob Williams', email: 'customer2@demo.com', password: 'demo123', role: 'customer' },
-    { name: 'Sarah Chen', email: 'agent@demo.com', password: 'demo123', role: 'agent' },
-    { name: 'Mike Torres', email: 'agent2@demo.com', password: 'demo123', role: 'agent' },
-  ]);
+  const customer1 = await new User({
+    name: 'Alice Johnson',
+    email: 'customer@demo.com',
+    password: 'demo123',
+    role: 'customer'
+  }).save();
+
+  const customer2 = await new User({
+    name: 'Bob Williams',
+    email: 'customer2@demo.com',
+    password: 'demo123',
+    role: 'customer'
+  }).save();
+
+  const agent1 = await new User({
+    name: 'Sarah Chen',
+    email: 'agent@demo.com',
+    password: 'demo123',
+    role: 'agent'
+  }).save();
+
+  const agent2 = await new User({
+    name: 'Mike Torres',
+    email: 'agent2@demo.com',
+    password: 'demo123',
+    role: 'agent'
+  }).save();
   logger.info('Created 4 demo users');
 
   const ticketData = [
@@ -70,10 +93,13 @@ const seed = async () => {
     },
   ];
 
-  const tickets = await Ticket.create(ticketData);
+  const tickets = [];
+  for (const data of ticketData) {
+    tickets.push(await new Ticket(data).save());
+  }
   logger.info(`Created ${tickets.length} demo tickets`);
 
-  await Comment.create([
+  const commentData = [
     {
       ticket: tickets[1]._id, author: agent1._id,
       content: "Hi Alice, I can see the duplicate charge on our end. I've initiated a refund for $49.99 which should appear within 3-5 business days. I apologize for the inconvenience!",
@@ -94,7 +120,11 @@ const seed = async () => {
       content: 'Hi! Data export is available under Settings > Account > Export Data. You can export in CSV or JSON format. Could you confirm which format you need?',
       isInternal: false,
     },
-  ]);
+  ];
+
+  for (const data of commentData) {
+    await new Comment(data).save();
+  }
   logger.info('Created demo comments');
 
   logger.info('\n✅ Seed complete! Demo accounts:');
@@ -106,6 +136,6 @@ const seed = async () => {
 };
 
 seed().catch((err) => {
-  logger.error(`Seed failed: ${err.message}`);
+  logger.error(`Seed failed: ${err.stack}`);
   process.exit(1);
 });

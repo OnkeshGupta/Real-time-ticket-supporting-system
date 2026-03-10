@@ -37,15 +37,22 @@ const ticketSchema = new mongoose.Schema(
 );
 
 ticketSchema.pre('save', async function (next) {
-  if (!this.ticketNumber) {
-    const count = await mongoose.model('Ticket').countDocuments();
-    this.ticketNumber = `TKT-${String(count + 1).padStart(5, '0')}`;
+  try {
+    if (!this.ticketNumber) {
+      const count = await mongoose.model('Ticket').countDocuments();
+      this.ticketNumber = `TKT-${String(count + 1).padStart(5, '0')}`;
+    }
+
+    if (this.isModified('status')) {
+      if (this.status === 'resolved') this.resolvedAt = new Date();
+      if (this.status === 'closed') this.closedAt = new Date();
+    }
+
+    if (typeof next === 'function') next();
+  } catch (error) {
+    if (typeof next === 'function') next(error);
+    else throw error;
   }
-  if (this.isModified('status')) {
-    if (this.status === 'resolved') this.resolvedAt = new Date();
-    if (this.status === 'closed') this.closedAt = new Date();
-  }
-  next();
 });
 
 ticketSchema.virtual('commentCount', { ref: 'Comment', localField: '_id', foreignField: 'ticket', count: true });
