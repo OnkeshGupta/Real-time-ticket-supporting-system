@@ -1,0 +1,72 @@
+﻿[dotenv@17.3.1] injecting env (12) from .env -- tip: ΓÜÖ∩╕Å  suppress all logs with { quiet: true }
+node : 
+D:\Desktop\Real-time ti
+cket\backend\node_modul
+es\router\lib\route.js:
+228
+At line:1 char:1
++ node server.js > 
+error.log 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (D:\Desktop\Re   
+ al...ib\route.js:2    
+28:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+        throw new 
+TypeError('argument 
+handler must be a 
+function')
+        ^
+
+TypeError: argument 
+handler must be a 
+function
+    at 
+Route.<computed> [as 
+post] 
+(D:\Desktop\Real-time t
+icket\backend\node_modu
+les\router\lib\route.js
+:228:15)
+    at 
+Router.<computed> [as 
+post] 
+(D:\Desktop\Real-time t
+icket\backend\node_modu
+les\router\index.js:448
+:19)
+    at 
+Object.<anonymous> 
+(D:\Desktop\Real-time t
+icket\backend\middlewar
+e\validation.js:16:8)
+    at Module._compile 
+(node:internal/modules/
+cjs/loader:1761:14)
+    at Object..js (node
+:internal/modules/cjs/l
+oader:1893:10)
+    at Module.load (nod
+e:internal/modules/cjs/
+loader:1481:32)
+    at Module._load (no
+de:internal/modules/cjs
+/loader:1300:12)
+    at TracingChannel.t
+raceSync (node:diagnost
+ics_channel:328:14)
+    at wrapModuleLoad (
+node:internal/modules/c
+js/loader:245:24)
+    at Module.require (
+node:internal/modules/c
+js/loader:1504:12)
+
+Node.js v24.13.0
